@@ -1,0 +1,13 @@
+
+%{
+
+%}
+
+%token
+CREATE
+DATABASE
+
+%%
+
+%%
+
