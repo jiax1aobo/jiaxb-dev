@@ -10,14 +10,14 @@
 
 %option noyywrap
 
-comment_introducer_hint "/*+"
-comment_introducer      "/*"
-comment_terminator      "*/"
+/* comment_introducer_hint "/*+" */
+/* comment_introducer      "/*" */
+/* comment_terminator      "*\/" */
 simple_comment          "--"[^\n]*
-c_simple_comment        "//"[^\n]*
+/* c_simple_comment        "//"[^\n]* */
 
 quote_symbol            "\'\'"
-value_range_operator    ".."
+/* value_range_operator    ".." */
 
 plus_sign       "+"
 minus_sign      "-"
@@ -37,8 +37,8 @@ left_bracket    "["
 right_bracket   "]"
 left_brace      "{"
 right_brace     "}"
-// left_bracket_trigraph   "??("    // dont know what for
-// right_bracket_trigraph  "??)"    // dont know what for
+/* left_bracket_trigraph   "??("  */
+/* right_bracket_trigraph  "??)" */
 
 colon           ":"
 semicolon       ";"
@@ -65,9 +65,9 @@ at_sign "@"
 outer_mark  {left_paren}[ \t\n\r\v\f]*{plus_sign}[ \t\n\r\v\f]*{right_paren}
 keep_mark   {left_paren}[ \t\n\r\v\f]*[kK][eE][eE][pP][ \t\n\r\v\f]*{right_paren}
 
-open_label  "<<"    // for psm
-close_label ">>"    // for psm
-assignment  ":="    // for psm
+/* open_label  "<<" */
+/* close_label ">>" */
+/* assignment  ":=" */
 
 white_space [ \t\n\r\v\f]+
 digit       [0-9]
@@ -97,18 +97,68 @@ double_quote_string {double_quote}[^\"]*{double_quote}
 
 not_applicable  [\000-\010\012-\014\016-\037\041\140\176\177-\377]+
 
-with_time_zone  [wW][iI][tT][hH]{white_space}[tT][iI][mM][eE]{white_space}[zZ][oO][nN][eE]
-with_data  [wW][iI][tT][hH]{white_space}[dD][aA][tT][aA]
-with_no_data [wW][iI][tT][hH]{white_space}[nN][oO]{white_space}[dD][aA][tT][aA]
+/* with_time_zone  [wW][iI][tT][hH]{white_space}[tT][iI][mM][eE]{white_space}[zZ][oO][nN][eE] */
+/* with_data  [wW][iI][tT][hH]{white_space}[dD][aA][tT][aA] */
+/* with_no_data [wW][iI][tT][hH]{white_space}[nN][oO]{white_space}[dD][aA][tT][aA] */
 
+/* not_deferrable  [nN][oO][tT]{white_space}[dD][eE][fF][eE][rR][rR][aA][bB][lL][eE] */
+/* not_enforced    [nN][oO][tT]{white_space}[eE][nN][fF][oO][rR][cC][eE][dD] */
+
+/* in_reverse      [iI][nN]{white_space}[rR][eE][vV][eE][rR][sS][eE] */
+
+/* end_exec [eE][nN][dD]{white_space}[eE][xX][eE][cC] */
+
+/* connect_by          [cC][oO][nN][nN][eE][cC][tT]{white_space}[bB][yY] */
+/* connect_by_nocycle  [cC][oO][nN][nN][eE][cC][tT]{white_space}[bB][yY]{white_space}[nN][oO][cC][yY][cC][lL][eE] */
+
+/* // order_siblings_by [oO][rR][dD][eE][rR]{white_space}[sS][iI][bB][lL][iI][nN][gG][sS]{white_space}[bB][yY] */
+/* package_body    [pP][aA][cC][kK][aA][gG][eE]{white_space}[bB][oO][dD][yY] */
+
+/* is_distinct_from [iI][sS]{white_space}[dD][iI][sS][tT][iI][nN][cC][tT]{white_space}[fF][rR][oO][mM] */
+/* is_not_distinct_from [iI][sS]{white_space}[nN][oO][tT]{white_space}[dD][iI][sS][tT][iI][nN][cC][tT]{white_space}[fF][rR][oO][mM] */
+
+/* partition_by    [pP][aA][rR][tT][iI][tT][iI][oO][nN]{white_space}[bB][yY] */
+
+/* unbounded_following [uU][nN][bB][oO][uU][nN][dD][eE][dD]{white_space}[fF][oO][lL][lL][oO][wW][iI][nN][gG] */
+/* unbounded_preceding [uU][nN][bB][oO][uU][nN][dD][eE][dD]{white_space}[pP][rR][eE][cC][eE][dD][iI][nN][gG] */
 
 %%
+{simple_comment}    { /* do nothing */ }
 
+{plus_sign}         { return TOK_PLUS_SIGN; }
+{minus_sign}        { return TOK_MINUS_SIGN; }
+{asterisk}          { return TOK_ASTERISK; }
+{solidus}   { return TOK_SOLIDUS; }
+{comma} { return TOK_COMMA; }
+{period}    { return TOK_PERIOD; }
+{quote} { return TOK_QUOTE; }
+{double_quote} { return TOK_DOUBLE_QUOTE; }
+{reverse_solidus} { return TOK_REVERSE_SOLIDUS; }
+
+{percent} { return TOK_PERCENT; }
+{ampersand} { return TOK_AMPERSAND; }
+{left_paren} { return TOK_LEFT_PAREN; }
+{right_paren} { return TOK_RIGHT_PAREN; }
+{left_bracket} { return TOK_LEFT_BRACKET; }
+{right_bracket} { return TOK_RIGHT_BRACKET; }
+{left_brace} { return TOK_LEFT_BRACE; }
+{right_brace} { return TOK_RIGHT_BRACE; }
+
+{colon} { return TOK_COLON; }
+{semicolon} { return TOK_SEMICOLON; }
+{underscore} { return TOK_UNDERSCORE; }
+{question_mark} { return TOK_QUESTION_MARK; }
+{circumflex} { return TOK_CIRCUMFLEX; }
+{vertical_bar} { return TOK_VERTICAL_BAR; }
+
+{less_than_operator}    { return TOK_LESS_THAN_OPERATOR; }
 %%
 
 const sql_keyword keyword_list[] =
 {
     { "CREATE", TOK_CREATE, SQL_KEYWORD_RESERVED },
     { "DATABASE", TOK_DATABASE, SQL_KEYWORD_RESERVED },
-    { "TABLE", TOK_TABLE, SQL_KEYWORD_RESERVED }
+    { "INTEGER", TOK_INTEGER, SQL_KEYWORD_RESERVED },
+    { "TABLE", TOK_TABLE, SQL_KEYWORD_RESERVED },
+    { "VARCHAR", TOK_VARCHAR, SQL_KEYWORD_RESERVED }
 };
