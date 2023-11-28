@@ -85,12 +85,12 @@ unsigned_integer_literal    {digits}[dDfF]?
 positive_integer_literal    [+][ ]*{digits}
 negative_integer_literal    [-][ ]*{digits}
 
-unsigned_range_numeric_literal  {digits}{period}{period}
+/* unsigned_range_numeric_literal  {digits}{period}{period} */
 unsigned_exact_numeric_literal  {digits}{period}[dDfF]?|{digits}{period}{digits}[dDfF]?|{period}{digits}[dDfF]?
 unsigned_approximate_numeric_literal [+-][ ]*{digits}[eE][+-]{digits}|[+-][ ]*{unsigned_exact_numeric_literal}[eE][+-]?{digits}[dDfF]?
 
-bracket_comment_1   {comment_introducer}{comment_terminator}|{comment_introducer}([^+])([^*]|(\*+[^*/]))*\**{comment_terminator}
-bracket_comment     {bracket_comment_1}
+/* bracket_comment_1   {comment_introducer}{comment_terminator}|{comment_introducer}([^+])([^*]|(\*+[^*\/]))*\**{comment_terminator} */
+/* bracket_comment     {bracket_comment_1} */
 
 quote_string    {quote_symbol}|{quote}([^\']|{quote_symbol})+{quote}
 double_quote_string {double_quote}[^\"]*{double_quote}
@@ -152,6 +152,33 @@ not_applicable  [\000-\010\012-\014\016-\037\041\140\176\177-\377]+
 {vertical_bar} { return TOK_VERTICAL_BAR; }
 
 {less_than_operator}    { return TOK_LESS_THAN_OPERATOR; }
+{greater_than_operator}    { return TOK_GREATER_THAN_OPERATOR; }
+{equal_operator} { return TOK_EQUAL_OPERATOR; }
+{not_equal_operator} { return TOK_NOT_EQUAL_OPERATOR; }
+{not_equal_operator_expand} { return TOK_NOT_EQUAL_OPERATOR_EXPAND; }
+{less_than_equal_operator} { return TOK_LESS_THAN_EQUAL_OPERATOR; }
+{greater_than_equal_operator} { return TOK_GREATER_THAN_EQUAL_OPERATOR; }
+
+{concatenate_operator} { return TOK_CONCATENATE_OPERATOR; }
+
+{dollar_sign} { return TOK_DOLLAR_SIGN; }
+{sharp} { return TOK_SHARP;}
+{at_sign} { return TOK_AT_SIGN; }
+
+{white_space} { /* ignore white space */ }
+
+{unsigned_approximate_numeric_literal} { return TOK_UNSIGNED_APPROXIMATE_NUMERIC_LITERAL; }
+{unsigned_exact_numeric_literal} { return TOK_UNSIGNED_EXACT_NUMERIC_LITERAL; }
+{unsigned_integer_literal} { return TOK_UNSIGNED_INTEGER_LITERAL; }
+
+{identifier} {
+
+}
+
+{quote_string} {
+    yyleng -= 2;
+    
+}
 %%
 
 const sql_keyword keyword_list[] =
