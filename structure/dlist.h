@@ -34,7 +34,7 @@ typedef struct _dlist
 #define dlist_init_list(_plist, _off) \
     {                                 \
         (_plist)->link.next = NULL;   \
-        (_plist)->link.next = NULL;   \
+        (_plist)->link.prev = NULL;   \
         (_plist)->offset = (_off);    \
     }
 
@@ -93,34 +93,36 @@ typedef struct _dlist
         (_plist)->link.prev = _pdata;                                               \
     }
 
-#define dlist_insert_data_after(_plist, _pdata, _prev)                                                      \
-    {                                                                                                       \
-        void *_next = (dlist_get_link(_prev, (_plist)->offset))->next;                                      \
-        (dlist_get_link(_pdata, (_plist)->offset))->prev = _prev;                                           \
-        (dlist_get_link(_pdata, (_plist)->offset))->next = (dlist_get_link(_prev, (_plist)->offset))->next; \
-        if ((dlist_get_link(_prev, (_plist)->offset))->next != NULL)                                        \
-        {                                                                                                   \
-            (dlist_get_link(_next, (_plist)->offset))->prev = _pdata;                                       \
-        }                                                                                                   \
-        else                                                                                                \
-        {                                                                                                   \
-            (_plist)->prev = _pdata;                                                                        \
-        }                                                                                                   \
+#define dlist_insert_data_after(_plist, _pdata, _prev)                 \
+    {                                                                  \
+        void *_next = (dlist_get_link(_prev, (_plist)->offset))->next; \
+        (dlist_get_link(_prev, (_plist)->offset))->next = _pdata;      \
+        (dlist_get_link(_pdata, (_plist)->offset))->prev = _prev;      \
+        (dlist_get_link(_pdata, (_plist)->offset))->next = _next;      \
+        if (_next != NULL)                                             \
+        {                                                              \
+            (dlist_get_link(_next, (_plist)->offset))->prev = _pdata;  \
+        }                                                              \
+        else                                                           \
+        {                                                              \
+            (_plist)->link.prev = _pdata;                              \
+        }                                                              \
     }
 
-#define dlist_insert_data_before(_plist, _pdata, _next)                                                     \
-    {                                                                                                       \
-        void *_prev = (dlist_get_link(_next, (_plist)->offset))->prev;                                      \
-        (dlist_get_link(_pdata, (_plist)->offset))->next = _next;                                           \
-        (dlist_get_link(_pdata, (_plist)->offset))->prev = (dlist_get_link(_next, (_plist)->offset))->prev; \
-        if ((dlist_get_link(_next, (_plist)->offset))->prev != NULL)                                        \
-        {                                                                                                   \
-            (dlist_get_link(_prev, (_plist)->offset))->next = _pdata;                                       \
-        }                                                                                                   \
-        else                                                                                                \
-        {                                                                                                   \
-            (_plist)->next = _pdata;                                                                        \
-        }                                                                                                   \
+#define dlist_insert_data_before(_plist, _pdata, _next)                \
+    {                                                                  \
+        void *_prev = (dlist_get_link(_next, (_plist)->offset))->prev; \
+        (dlist_get_link(_next, (_plist)->offset))->prev = _pdata;      \
+        (dlist_get_link(_pdata, (_plist)->offset))->next = _next;      \
+        (dlist_get_link(_pdata, (_plist)->offset))->prev = _prev;      \
+        if (_prev != NULL)                                             \
+        {                                                              \
+            (dlist_get_link(_prev, (_plist)->offset))->next = _pdata;  \
+        }                                                              \
+        else                                                           \
+        {                                                              \
+            (_plist)->link.next = _pdata;                              \
+        }                                                              \
     }
 
 #define dlist_foreach_data(_plist, _pdata)                   \
