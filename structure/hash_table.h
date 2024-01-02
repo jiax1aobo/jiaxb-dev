@@ -17,18 +17,26 @@ typedef struct _hash_elem_list
     uint32_t count;
 } hash_elem_list;
 
-/*typedef struct _bucket_list
+typedef struct _bucket_item
 {
     hash_elem_list elem_list;
-    bucket_list *next;
-} bucket_list;*/
+    list_node link;
+} bucket_item;
+
+typedef struct _bucket_list
+{
+    dlist handle;
+    uint32_t *count; /* capacity */
+} bucket_list;
 
 typedef struct _hash_table
 {
-    int capacity;
-    dlist *bucket_list;
+    uint32_t capacity;
+    bucket_list buckets;
 } hash_table;
 
-status init_hash_table(hash_table **ht, uint32_t cap);
+status create_hash_table(hash_table **ht, uint32_t cap);
+
+status destroy_hash_table(hash_table *ht, uint32_t cap);
 
 #endif /* _HASH_TABLE_H_ */

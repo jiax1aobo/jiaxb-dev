@@ -16,7 +16,7 @@ typedef enum _status
     {                          \
         if (!(_expr))          \
         {                      \
-            goto FINISH_ALBEL; \
+            goto FINISH_LABEL; \
         }                      \
     } while (0)
 
