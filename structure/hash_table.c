@@ -1,6 +1,7 @@
 
 #include "common.h"
 #include "hash_table.h"
+#include <string.h>
 
 status create_hash_table(hash_table **htab, uint32_t cap)
 {
@@ -50,4 +51,59 @@ status create_hash_table(hash_table **htab, uint32_t cap)
     }
 
     return FAILURE;
+}
+
+status destroy_hash_table(hash_table *ht)
+{
+    bucket_item *bi = ht->buckets.handle.link.next;
+
+    free(bi);
+    free(ht);
+    
+    return SUCCESS;
+}
+
+status insert_hash_table(hash_table *ht, hash_elem *he, int32_t kty)
+{
+    uint32_t hc = 0;
+    uint32_t idx = 0;
+    bucket_list *blist = NULL;
+    bucket_item *bitem = NULL;
+    hash_elem_list *elist = NULL;
+    uint32_t i = 0;
+
+    blist = &(ht->buckets);
+
+    if (kty == 0)
+    {
+        hc = byte_hash_code(he->key, strlen(he->key), 0);
+    }
+    else
+    {
+        /* assert(kty == 1); */
+        hc = integer_hash_code(he->key);
+    }
+
+    idx = hc % ht->capacity;
+
+    dlist_foreach_data(&(blist->handle), bitem)
+    {
+        if (i == idx)
+        {
+            break;
+        }
+        else
+        {
+            bitem = dlist_get_next_data(&(blist->handle), bitem);
+        }
+    }
+    
+    elist = &(bitem->elem_list);
+    dlist_add_data_first(&(elist->handle), he);
+
+    return SUCCESS;
+
+    C_FINISH;
+
+    return FALSE;
 }

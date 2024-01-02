@@ -133,7 +133,7 @@ typedef struct _dlist
 #define dlist_foreach_data_safe(_plist, _pdata, _next)                                       \
     for (_pdata = dlist_get_first_data(_plist), _next = dlist_get_next_data(_plist, _pdata); \
          _pdata != dlist_get_data(_plist, (_plist)->offset);                                 \
-         _pdata = pnext, _next = dlist_get_next_data(_plist, _pdata))
+         _pdata = _next, _next = dlist_get_next_data(_plist, _pdata))
 
 #define dlist_foreach_data_from(_plist, _from, _pdata)       \
     for (_pdata = _from;                                     \

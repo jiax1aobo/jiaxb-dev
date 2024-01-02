@@ -2,6 +2,7 @@
 #define _HASH_TABLE_H_ 1
 
 #include "dlist.h"
+#include "hash.h"
 #include <stdint.h>
 
 typedef struct _hash_elem
@@ -37,6 +38,9 @@ typedef struct _hash_table
 
 status create_hash_table(hash_table **ht, uint32_t cap);
 
-status destroy_hash_table(hash_table *ht, uint32_t cap);
+status destroy_hash_table(hash_table *ht);
+
+// kty: 0 for byte; 1 for integer
+status insert_hash_table(hash_table *ht, hash_elem *he, int32_t kty);
 
 #endif /* _HASH_TABLE_H_ */

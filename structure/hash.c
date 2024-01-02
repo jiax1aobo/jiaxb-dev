@@ -68,14 +68,16 @@ uint32_t byte_hash_code(const char *key, uint32_t len, uint32_t seed)
 }
 
 
-uint32_t integer_hash_code(uint32_t key)
+uint32_t integer_hash_code(const uint32_t *key)
 {
-    key += ~(key << 15);
-    key ^= (key >> 10);
-    key += (key << 3);
-    key ^= (key >> 6);
-    key += ~(key << 11);
-    key ^= (key >> 16);
+    uint32_t k = *key;
 
-    return key;
+    k += ~(k << 15);
+    k ^= (k >> 10);
+    k += (k << 3);
+    k ^= (k >> 6);
+    k += ~(k << 11);
+    k ^= (k >> 16);
+
+    return k;
 }
