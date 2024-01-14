@@ -18,7 +18,7 @@ extern void yyerror(const char *);
 %type <ival> TOK_INTEGER
 %type <fval> TOK_FLOAT
 %type <cval> cond_op
-%token <sval> TOK_IDENTIFIER
+%token <sval> TOK_IDENTIFIER TOK_QUOTED_STRING
 
 %left TOK_PLUS_SIGN
 %left TOK_MINUS_SIGN
@@ -47,7 +47,6 @@ TOK_WHERE
 TOK_VARCHAR
 
 %token
-TOK_COMM
 TOK_PERIOD
 TOK_QUOTE
 TOK_DOUBLE_QUOTE
@@ -72,7 +71,11 @@ TOK_EOF
 %%
 
 start:
-    ddl
+    /* empty rule */
+    {
+        /* empty action for blank line */
+    }
+    | ddl TOK_SEMICOLON
     {
         printf("DDL:\n");
     }
@@ -84,18 +87,71 @@ start:
 ;
 
 ddl:
-    create_table
+    create_table_stmt
     {
-        printf("\tCREATE TABLE:\n");
     }
 ;
 
-create_table:
-    TOK_CREATE TOK_TABLE TOK_IDENTIFIER
+create_table_stmt:
+    TOK_CREATE TOK_TABLE identifier_chain
+    TOK_LEFT_PAREN
+    table_column_definition
+    TOK_RIGHT_PAREN
     {
-        printf("\t\tCREATE TABLE %s\n", $3);
+        printf("创建表:\t");
     }
 ;
+
+identifier_chain:
+    identifier
+    {
+        /* @todo */
+    }
+    | identifier_chain TOK_PERIOD identifier
+    {
+        /* @todo */
+        printf("\t(period)\t");
+    }
+;
+
+identifier:
+    TOK_IDENTIFIER
+    {
+        $$ = $1;
+    }
+    | TOK_QUOTED_STRING
+    {
+        $$ = $1;
+    }
+;
+
+table_column_definition_list:
+    table_column_definition
+    {
+
+    }
+    | table_column_definition_list TOK_COMMA table_column_definition
+    {
+
+    }
+;
+
+table_column_definition:
+
+
+/*regular_identifier:
+    TOK_IDENTIFIER
+    {
+        $$ = $1;
+    }
+;*/
+
+/*delimited_identifier:
+    TOK_QUOTED_STRING
+    {
+        $$ = $1;
+    }
+;*/
 
 cond_op:
     TOK_GREATER_THAN_OP {$$ = COND_OP_GT;}
@@ -108,6 +164,7 @@ cond_op:
 ;
 
 %%
+
 int main(int argc, char **argv)
 {
 	while(yyparse() != 0)

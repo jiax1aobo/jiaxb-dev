@@ -45,6 +45,7 @@ alphabet [A-Za-z]
 identifier_start [A-Za-z_]
 identifier_continue [A-Za-z_0-9]
 identifier {identifier_start}{identifier_continue}+
+quoted_string {quote}([^\'\n]|(\'\'))*{quote}
 
 integer [-+]?[1-9]{digits}
 float [-+]?{digits}{period}{digits}
@@ -59,10 +60,10 @@ float [-+]?{digits}{period}{digits}
 {less_than_equal_op}    {return TOK_LESS_THAN_EQUAL_OP;}
 {not_equal_op}          {return TOK_NOT_EQUAL_OP;}
 {not_equal_op_ext}      {return TOK_NOT_EQUAL_OP_EXT;}
-
 {integer}       {yylval.ival = atoi(yytext); return TOK_INTEGER;}
 {float}         {yylval.fval = atof(yytext); return TOK_FLOAT;}
-{identifier}    {return lookup_keyword(yylval.sval = yytext);}
+{identifier}    {return find_keyword(yylval.sval = yytext);}
+{quoted_string} {yylval.sval = take_off_quote(yytext, yyleng); return TOK_QUOTED_STRING;}
 
 <<EOF>> {return TOK_EOF;}
 
@@ -108,7 +109,7 @@ sql_keyword keyword_array[] =
 
 uint64_t kw_arr_sz = KEYWORD_ARRAY_SIZE(keyword_array);
 
-const uint32_t lookup_keyword(char *input)
+const uint32_t find_keyword(char *input)
 {
     uint32_t len;
     char tmp_buff[KEYWORD_MAX_LENGTH + 1];
@@ -135,7 +136,7 @@ const uint32_t lookup_keyword(char *input)
         l = keyword_array;
         h = &keyword_array[kw_arr_sz - 1];
 
-        while(l < m)
+        while(l <= h)
         {
             m = l + ((h - l) / 2);
 
@@ -146,7 +147,7 @@ const uint32_t lookup_keyword(char *input)
                 res = m;
                 break;
             }
-            else if(diff < 0)
+            else if(diff > 0)
             {
                 l = m + 1;
             }

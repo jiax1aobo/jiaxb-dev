@@ -1,3 +1,7 @@
 flex-bison/exec
 structure/test-list
 structure/a.out
+sql-parser/sql_scanner.yy.c
+sql-parser/sql_parser.tab.c
+sql-parser/sql_parser.tab.h
+sql-parser/a.out
