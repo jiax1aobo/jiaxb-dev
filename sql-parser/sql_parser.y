@@ -14,6 +14,7 @@ extern void yyerror(const char *);
     double fval;
     char *sval;
     cmp_op cval;
+    identifier id;
 }
 
 %type <ival> TOK_INTEGER
@@ -26,6 +27,7 @@ extern void yyerror(const char *);
 %type <cval> TOK_AND TOK_OR TOK_CONCAT_OP TOK_LIKE TOK_IN
 %type <cval> TOK_BETWEEN TOK_NOT TOK_IS
 %type <cval> TOK_AT
+%type <id> identifier
 
 %left TOK_PLUS_SIGN
 %left TOK_MINUS_SIGN
@@ -124,11 +126,17 @@ identifier_chain:
 identifier:
     TOK_IDENTIFIER
     {
-        $$ = $1;
+        $$ = make_sql_identifier(PARSE_NODE_TYPE_SQL_IDENTIFIER,
+                                 /* position, */
+                                 $1);
     }
     | TOK_QUOTED_STRING
     {
-        $$ = $1;
+        identifier *id = (identifier *)malloc(sizeof(identifier));
+        id->common.type = PARSE_NODE_TYPE_SQL_IDENTIFIER_QUOTED;
+        // id->common.position = @;
+        id->name = $1;
+        $$ = id;
     }
 ;
 
@@ -161,13 +169,13 @@ table_column_definition:
 ;*/
 
 cond_op:
-    TOK_GREATER_THAN_OP {$$ = COND_OP_GT;}
-    | TOK_LESS_THAN_OP  {$$ = COND_OP_LT;}
-    | TOK_EQUAL_OP {$$ = COND_OP_EQ;}
-    | TOK_GREATER_THAN_EQUAL_OP {$$ = COND_OP_GE;}
-    | TOK_LESS_THAN_EQUAL_OP {$$ = COND_OP_LE;}
-    | TOK_NOT_EQUAL_OP {$$ = COND_OP_NE;}
-    | TOK_NOT_EQUAL_OP_EXT {$$ = COND_OP_NE_X;}
+    TOK_GREATER_THAN_OP {$$ = CMP_OP_GT;}
+    | TOK_LESS_THAN_OP  {$$ = CMP_OP_LT;}
+    | TOK_EQUAL_OP {$$ = CMP_OP_EQ;}
+    | TOK_GREATER_THAN_EQUAL_OP {$$ = CMP_OP_GE;}
+    | TOK_LESS_THAN_EQUAL_OP {$$ = CMP_OP_LE;}
+    | TOK_NOT_EQUAL_OP {$$ = CMP_OP_NE;}
+    | TOK_NOT_EQUAL_OP_EXT {$$ = CMP_OP_NE_X;}
 ;
 
 %%
