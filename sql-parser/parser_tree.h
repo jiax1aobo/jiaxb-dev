@@ -13,4 +13,12 @@ typedef enum _cmp_op
     COND_OP_NE_X    /* != */
 } cmp_op;
 
+typedef struct _identifier_chain
+{
+    char *name;
+    struct _identifier_chain *next;
+} identifier_chain;
+
+
+
 #endif/* _PARSER_TREE_H_ */

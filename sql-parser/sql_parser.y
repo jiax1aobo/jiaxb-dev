@@ -6,6 +6,7 @@
 #include "parser_tree.h"
 extern int yylex(void);
 extern void yyerror(const char *);
+
 %}
 
 %union {
@@ -19,6 +20,12 @@ extern void yyerror(const char *);
 %type <fval> TOK_FLOAT
 %type <cval> cond_op
 %token <sval> TOK_IDENTIFIER TOK_QUOTED_STRING
+%type <cval> TOK_EQ TOK_NE TOK_LT TOK_GT TOK_LE TOK_GE
+%type <cval> TOK_PLUS_SIGN TOK_MINUS_SIGN TOK_ASTERISK_SIGN TOK_SOLIDUS_SIGN
+%type <cval> TOK_LEFT_PAREN TOK_RIGHT_PAREN TOK_COMMA
+%type <cval> TOK_AND TOK_OR TOK_CONCAT_OP TOK_LIKE TOK_IN
+%type <cval> TOK_BETWEEN TOK_NOT TOK_IS
+%type <cval> TOK_AT
 
 %left TOK_PLUS_SIGN
 %left TOK_MINUS_SIGN
