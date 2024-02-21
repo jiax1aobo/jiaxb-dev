@@ -7,14 +7,37 @@
 extern int yylex(void);
 extern void yyerror(const char *);
 
+#define ADDR_POOL_MAX_SIZE 1024
+int addr_curr_cnt = 0;
+void *addr_pool[ADDR_POOL_MAX_SIZE];
+
+#define ADD_TO_ADDR_POOL(addr) \
+    addr_pool[(addr_curr_cnt++) % ADDR_POOL_MAX_SIZE] = (addr)
+
+#define CLEANUP_ADDR_POOL()                     \
+    do                                          \
+    {                                           \
+        int i;                                  \
+        for(i = 0; i < ADDR_POOL_MAX_SIZE; i++) \
+        {                                       \
+            if(addr_pool[i] != NULL)            \
+            {                                   \
+                free(addr_pool[i]);             \
+            }                                   \
+            else                                \
+            {                                   \
+                break;                          \
+            }                                   \
+        }                                       \
+    } while(0) 
 %}
 
 %union {
-    int ival;
+    int64_t ival;
     double fval;
     char *sval;
-    cmp_op cval;
-    identifier id;
+    cmp_op_t cval;
+    parse_node node;
 }
 
 %type <ival> TOK_INTEGER
@@ -27,7 +50,8 @@ extern void yyerror(const char *);
 %type <cval> TOK_AND TOK_OR TOK_CONCAT_OP TOK_LIKE TOK_IN
 %type <cval> TOK_BETWEEN TOK_NOT TOK_IS
 %type <cval> TOK_AT
-%type <id> identifier
+%type <node> identifier
+            identifier_chain
 
 %left TOK_PLUS_SIGN
 %left TOK_MINUS_SIGN
@@ -114,29 +138,30 @@ create_table_stmt:
 identifier_chain:
     identifier
     {
-        /* @todo */
+        qlpList *list = parser_make_parse_list(PN_TYPE_PTR_LIST);
+        $$ = list;
+        ADD_TO_ADDR_POOL($$);
+        parser_add_ptr_value_to_list(list, $1);
+        /* TODO: list elem加入地址池里！！！ */
     }
     | identifier_chain TOK_PERIOD identifier
     {
-        /* @todo */
-        printf("\t(period)\t");
+        parser_add_ptr_value_to_list(list, $1);
+        /* TODO: list elem加入地址池里！！！ */
+        $$ = $1;
     }
 ;
 
 identifier:
     TOK_IDENTIFIER
     {
-        $$ = make_sql_identifier(PARSE_NODE_TYPE_SQL_IDENTIFIER,
-                                 /* position, */
-                                 $1);
+        $$ = parser_make_sql_id(-1, $1);
+        ADD_TO_ADDR_POOL($$);
     }
     | TOK_QUOTED_STRING
     {
-        identifier *id = (identifier *)malloc(sizeof(identifier));
-        id->common.type = PARSE_NODE_TYPE_SQL_IDENTIFIER_QUOTED;
-        // id->common.position = @;
-        id->name = $1;
-        $$ = id;
+        $$ = parser_make_sql_id_quoted(-1, $1);
+        ADD_TO_ADDR_POOL($$);
     }
 ;
 
@@ -186,6 +211,9 @@ int main(int argc, char **argv)
 	{
 		printf("parsing error occured!\n");
 	}
+
+    CLEANUP_ADDR_POOL();
+
 	return 0;
 }
 
