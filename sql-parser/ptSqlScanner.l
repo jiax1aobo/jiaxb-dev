@@ -1,9 +1,9 @@
 %{
 
 #include <stdlib.h>
-#include "parser_tree.h"
-#include "sql_parser.tab.h"
-#include "sql_def.h"
+#include "ptParseTree.h"
+#include "ptSqlParser.tab.h"
+#include "ptSqlDef.h"
 
 //#define yywrap() (1)
 
@@ -62,15 +62,14 @@ float [-+]?{digits}{period}{digits}
 {not_equal_op_ext}      {return TOK_NOT_EQUAL_OP_EXT;}
 {integer}       {yylval.ival = atoi(yytext); return TOK_INTEGER;}
 {float}         {yylval.fval = atof(yytext); return TOK_FLOAT;}
-{identifier}    {return find_keyword(yylval.sval = yytext);}
+{identifier}    {return ptFindKeyword(yylval.sval = yytext);}
 {quoted_string} {yylval.sval = take_off_quote(yytext, yyleng); return TOK_QUOTED_STRING;}
 
 <<EOF>> {return TOK_EOF;}
 
 %%
 
-sql_keyword keyword_array[] =
-{
+ptSqlKeyword gKeywordArr[] = {
     /* A */
     /* B */
     /* C */
@@ -107,16 +106,16 @@ sql_keyword keyword_array[] =
     /* Z */
 };
 
-uint64_t kw_arr_sz = KEYWORD_ARRAY_SIZE(keyword_array);
+uint64_t gKwArrSize = KEYWORD_ARRAY_SIZE(gKeywordArr);
 
-const uint32_t find_keyword(char *input)
+const uint32_t ptFindKeyword(char *input)
 {
     uint32_t len;
     char tmp_buff[KEYWORD_MAX_LENGTH + 1];
-    sql_keyword *l;
-    sql_keyword *h;
-    sql_keyword *m;
-    sql_keyword *res;
+    ptSqlKeyword *l;
+    ptSqlKeyword *h;
+    ptSqlKeyword *m;
+    ptSqlKeyword *res;
     uint32_t ret;
     int32_t diff;
 
@@ -133,8 +132,8 @@ const uint32_t find_keyword(char *input)
     else
     {
         res = NULL;
-        l = keyword_array;
-        h = &keyword_array[kw_arr_sz - 1];
+        l = gKeywordArr;
+        h = &gKeywordArr[gKwArrSize - 1];
 
         while(l <= h)
         {

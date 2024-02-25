@@ -1,9 +1,9 @@
 all: parser
 parser:
-	#bison -H -b sql_parser sql_parser.y
-	bison -d -b sql_parser sql_parser.y
-	flex -o sql_scanner.yy.c sql_scanner.l
-	gcc sql_parser.tab.c sql_scanner.yy.c
+	#bison -H -b ptSqlParser ptSqlParser.y
+	bison -d -b ptSqlParser ptSqlParser.y
+	flex -o ptSqlScanner.yy.c ptSqlScanner.l
+	gcc --std=c99 ptSqlParser.tab.c ptSqlScanner.yy.c ptParseTree.c
 
 clean:
-	rm -f sql_parser.tab.* sql_scanner.yy.c a.out
+	rm -f ptSqlParser.tab.* ptSqlScanner.yy.c a.out

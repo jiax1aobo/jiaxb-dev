@@ -1,5 +1,5 @@
-#ifndef _SQL_DEF_H_
-#define _SQL_DEF_H_ 1
+#ifndef _PT_SQL_DEF_H_
+#define _PT_SQL_DEF_H_
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -13,18 +13,18 @@
 
 #define KEYWORD_MAX_LENGTH (64)
 
-typedef struct _sql_keyword
+typedef struct ptSqlKeyword
 {
 	const char *name;
 	uint32_t	id;
 	//sql_keyword_category category;
-} sql_keyword;
+} ptSqlKeyword;
 
-extern sql_keyword keyword_array[];
+extern ptSqlKeyword keyword_array[];
 
-#define KEYWORD_ARRAY_SIZE(array) (sizeof(array)/sizeof(sql_keyword))
+#define KEYWORD_ARRAY_SIZE(array) (sizeof(array)/sizeof(ptSqlKeyword))
 
-extern const uint32_t find_keyword(char *input_text);
+extern const uint32_t ptFindKeyword(char *input_text);
 
 /********************************************
  * A Char Poll for quoted string used in SQL
@@ -64,4 +64,4 @@ static char *take_off_quote(char *qstr, uint32_t len)
 	return p;
 }
 
-#endif /* _SQL_DEF_H_ 1 */
+#endif /* _PT_SQL_DEF_H_ */

@@ -3,7 +3,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "parser_tree.h"
+#include "ptParseTree.h"
+#include "ptParseBase.h"
 extern int yylex(void);
 extern void yyerror(const char *);
 
@@ -12,23 +13,23 @@ int addr_curr_cnt = 0;
 void *addr_pool[ADDR_POOL_MAX_SIZE];
 
 #define ADD_TO_ADDR_POOL(addr) \
-    addr_pool[(addr_curr_cnt++) % ADDR_POOL_MAX_SIZE] = (addr)
+    addr_pool[(addr_curr_cnt++) % ADDR_POOL_MAX_SIZE] = (void *)(addr)
 
-#define CLEANUP_ADDR_POOL()                     \
-    do                                          \
-    {                                           \
-        int i;                                  \
+#define CLEANUP_ADDR_POOL()                         \
+    do \
+    {                                            \
+        int i;                                      \
         for(i = 0; i < ADDR_POOL_MAX_SIZE; i++) \
-        {                                       \
-            if(addr_pool[i] != NULL)            \
-            {                                   \
-                free(addr_pool[i]);             \
-            }                                   \
-            else                                \
-            {                                   \
-                break;                          \
-            }                                   \
-        }                                       \
+        {   \
+            if(addr_pool[i] != NULL)\
+            {              \
+                free(addr_pool[i]);                 \
+            }\
+            else \
+            {                                \
+                break;                              \
+            }                                       \
+        }                                           \
     } while(0) 
 %}
 
@@ -36,8 +37,8 @@ void *addr_pool[ADDR_POOL_MAX_SIZE];
     int64_t ival;
     double fval;
     char *sval;
-    cmp_op_t cval;
-    parse_node node;
+    ptCmpOpType cval;
+    ptParseNode *node;
 }
 
 %type <ival> TOK_INTEGER
@@ -52,6 +53,7 @@ void *addr_pool[ADDR_POOL_MAX_SIZE];
 %type <cval> TOK_AT
 %type <node> identifier
             identifier_chain
+            ddl
 
 %left TOK_PLUS_SIGN
 %left TOK_MINUS_SIGN
@@ -71,48 +73,48 @@ void *addr_pool[ADDR_POOL_MAX_SIZE];
 %right TOK_AT
 
 %token
-TOK_CREATE
-TOK_DATABASE
-TOK_TABLE
-TOK_FROM
-TOK_SELECT
-TOK_WHERE
-TOK_VARCHAR
+    TOK_CREATE
+    TOK_DATABASE
+    TOK_TABLE
+    TOK_FROM
+    TOK_SELECT
+    TOK_WHERE
+    TOK_VARCHAR
 
 %token
-TOK_PERIOD
-TOK_QUOTE
-TOK_DOUBLE_QUOTE
-TOK_BACK_SOLIDUS
-TOK_PERCENT
-TOK_AMPERSAND
-TOK_COLON
-TOK_SEMICOLON
-TOK_UNDERSCORE
-TOK_QUESTION_MARK
-TOK_LESS_THAN_OP
-TOK_GREATER_THAN_OP
-TOK_EQUAL_OP
-TOK_NOT_EQUAL_OP
-TOK_NOT_EQUAL_OP_EXT
-TOK_LESS_THAN_EQUAL_OP
-TOK_GREATER_THAN_EQUAL_OP
-TOK_INTEGER
-TOK_FLOAT
-TOK_EOF
+    TOK_PERIOD
+    TOK_QUOTE
+    TOK_DOUBLE_QUOTE
+    TOK_BACK_SOLIDUS
+    TOK_PERCENT
+    TOK_AMPERSAND
+    TOK_COLON
+    TOK_SEMICOLON
+    TOK_UNDERSCORE
+    TOK_QUESTION_MARK
+    TOK_LESS_THAN_OP
+    TOK_GREATER_THAN_OP
+    TOK_EQUAL_OP
+    TOK_NOT_EQUAL_OP
+    TOK_NOT_EQUAL_OP_EXT
+    TOK_LESS_THAN_EQUAL_OP
+    TOK_GREATER_THAN_EQUAL_OP
+    TOK_INTEGER
+    TOK_FLOAT
+    TOK_EOF
 
 %%
 
 start:
-    /* empty rule */
+    %empty 
     {
         /* empty action for blank line */
     }
-    | ddl TOK_SEMICOLON
+    | start ddl TOK_SEMICOLON 
     {
         printf("DDL:\n");
     }
-    | TOK_EOF
+    | TOK_EOF 
     {
         printf("EOF\n");
         exit(1);
@@ -120,12 +122,19 @@ start:
 ;
 
 ddl:
-    create_table_stmt
+    /*create_table_stmt
     {
+    }*/
+    identifier_chain 
+    {
+        /* for test case */
+        $$ = $1;
+        ptTravelerParseList((ptParseList *)$1, ptIdCallback);
+        printf("\n");
     }
 ;
 
-create_table_stmt:
+/*create_table_stmt:
     TOK_CREATE TOK_TABLE identifier_chain
     TOK_LEFT_PAREN
     table_column_definition
@@ -133,21 +142,19 @@ create_table_stmt:
     {
         printf("创建表:\t");
     }
-;
+;*/
 
 identifier_chain:
     identifier
     {
-        qlpList *list = parser_make_parse_list(PN_TYPE_PTR_LIST);
-        $$ = list;
-        ADD_TO_ADDR_POOL($$);
-        parser_add_ptr_value_to_list(list, $1);
-        /* TODO: list elem加入地址池里！！！ */
+        ptParseList *list = ptMakeParseList(PT_PARSE_NODE_PTR_LIST);
+        $$ = (ptParseNode *)list;
+        ADD_TO_ADDR_POOL(list);
+        ADD_TO_ADDR_POOL(ptAddPtrValueToList(list, $1));
     }
     | identifier_chain TOK_PERIOD identifier
     {
-        parser_add_ptr_value_to_list(list, $1);
-        /* TODO: list elem加入地址池里！！！ */
+        ADD_TO_ADDR_POOL(ptAddPtrValueToList((ptParseList *)$1, $3));
         $$ = $1;
     }
 ;
@@ -155,17 +162,17 @@ identifier_chain:
 identifier:
     TOK_IDENTIFIER
     {
-        $$ = parser_make_sql_id(-1, $1);
+        $$ = (ptParseNode *)ptMakeSqlId(-1, (char *)$1);
         ADD_TO_ADDR_POOL($$);
     }
     | TOK_QUOTED_STRING
     {
-        $$ = parser_make_sql_id_quoted(-1, $1);
+        $$ = (ptParseNode *)ptMakeSqlIdQuoted(-1, (char *)$1);
         ADD_TO_ADDR_POOL($$);
     }
 ;
 
-table_column_definition_list:
+/*table_column_definition_list:
     table_column_definition
     {
 
@@ -174,9 +181,9 @@ table_column_definition_list:
     {
 
     }
-;
+;*/
 
-table_column_definition:
+//table_column_definition:
 
 
 /*regular_identifier:
