@@ -53,6 +53,8 @@ float [-+]?{digits}{period}{digits}
 
 %%
 
+{semicolon}             {return TOK_SEMICOLON;}
+{period}                {return TOK_PERIOD;}
 {greater_than_op}       {return TOK_GREATER_THAN_OP;}
 {less_than_op}          {return TOK_LESS_THAN_OP;}
 {equal_op}              {return TOK_EQUAL_OP;}

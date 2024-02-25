@@ -54,6 +54,7 @@ void *addr_pool[ADDR_POOL_MAX_SIZE];
 %type <node> identifier
             identifier_chain
             ddl
+            test
 
 %left TOK_PLUS_SIGN
 %left TOK_MINUS_SIGN
@@ -106,13 +107,10 @@ void *addr_pool[ADDR_POOL_MAX_SIZE];
 %%
 
 start:
-    %empty 
+    test TOK_SEMICOLON 
     {
-        /* empty action for blank line */
-    }
-    | start ddl TOK_SEMICOLON 
-    {
-        printf("DDL:\n");
+        ptTravelerParseList((ptParseList *)$1, ptIdCallback);
+        printf("\n");
     }
     | TOK_EOF 
     {
@@ -121,7 +119,7 @@ start:
     }
 ;
 
-ddl:
+test:
     /*create_table_stmt
     {
     }*/
@@ -129,8 +127,6 @@ ddl:
     {
         /* for test case */
         $$ = $1;
-        ptTravelerParseList((ptParseList *)$1, ptIdCallback);
-        printf("\n");
     }
 ;
 
@@ -147,7 +143,7 @@ ddl:
 identifier_chain:
     identifier
     {
-        ptParseList *list = ptMakeParseList(PT_PARSE_NODE_PTR_LIST);
+        ptParseList *list = ptMakeList(PT_PARSE_NODE_PTR_LIST);
         $$ = (ptParseNode *)list;
         ADD_TO_ADDR_POOL(list);
         ADD_TO_ADDR_POOL(ptAddPtrValueToList(list, $1));
@@ -162,12 +158,14 @@ identifier_chain:
 identifier:
     TOK_IDENTIFIER
     {
-        $$ = (ptParseNode *)ptMakeSqlId(-1, (char *)$1);
+        printf("identifier:\t%s\n", $1);
+        $$ = (ptParseNode *)ptMakeSqlId(-1, $1);
         ADD_TO_ADDR_POOL($$);
     }
     | TOK_QUOTED_STRING
     {
-        $$ = (ptParseNode *)ptMakeSqlIdQuoted(-1, (char *)$1);
+        printf("identifier:\t%s\n", $1);
+        $$ = (ptParseNode *)ptMakeSqlIdQuoted(-1, $1);
         ADD_TO_ADDR_POOL($$);
     }
 ;

@@ -51,7 +51,7 @@ typedef struct ptParseList
     ptParseListElem *tail;
 } ptParseList;
 
-ptParseList *ptMakeParseList(ptParseNodeType type);
+ptParseList *ptMakeList(ptParseNodeType type);
 
 void *ptAddPtrValueToList(ptParseList *list, void *value);
 

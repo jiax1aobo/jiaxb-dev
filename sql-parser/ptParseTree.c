@@ -3,7 +3,7 @@
 
 /* TODO: malloc()内存分配检查！！！ */
 
-ptParseList *ptMakeParseList(ptParseNodeType type)
+ptParseList *ptMakeList(ptParseNodeType type)
 {
     ptParseList *list = (ptParseList *)malloc(sizeof(ptParseList));
 
@@ -46,17 +46,18 @@ void ptTravelerParseList(ptParseList *list, ptCallback callback)
 void ptIdCallback(void *elem)
 {
     ptIdentifier *e = (ptIdentifier *)elem;
-    if (e != NULL) {
-        ptParseNode node = e->node;
-        switch (node.type) {
-            case PT_PARSE_NODE_SQL_ID:
-                printf("SQL ID: %s\n", e->name);
-                break;
-            case PT_PARSE_NODE_SQL_ID_QUOTED:
-                printf("SQL ID Quoted: %s\n", e->name);
-                break;
-            default:
-                break;
+    if (e != NULL)
+    {
+        switch (e->node.type)
+        {
+        case PT_PARSE_NODE_SQL_ID:
+            printf("ID: %s\n", e->name);
+            break;
+        case PT_PARSE_NODE_SQL_ID_QUOTED:
+            printf("ID Quoted: %s\n", e->name);
+            break;
+        default:
+            break;
         }
     }
 }
